@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Barcoded
+﻿namespace Barcoded
 {
     internal static class LinearHelpers
     {
@@ -12,20 +8,19 @@ namespace Barcoded
         /// </summary>
         /// <param name="text">Text to remove non ASCII from.</param>
         /// <returns>ASCII only version of input text.</returns>
-        internal static string GetOnlyASCII(string text)
+        internal static string GetOnlyAscii(string text)
         {
             string returnString = "";
 
-            if(String.IsNullOrEmpty(text))
+            if(string.IsNullOrEmpty(text))
             {
                 return returnString;
             }
 
-            int ASCIICode;
             for (int position = 0; position <= text.Length - 1; position++)
             {
-                ASCIICode = text[position];
-                if (ASCIICode > 127)
+                int asciiCode = text[position];
+                if (asciiCode > 127)
                 {
                     returnString += " ";
                 }
@@ -47,16 +42,15 @@ namespace Barcoded
         {
             string returnString = "";
 
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
             {
                 return returnString;
             }
 
-            int ASCIICode;
             for (int position = 0; position <= text.Length - 1; position++)
             {
-                ASCIICode = text[position];
-                if (ASCIICode >= 48 && ASCIICode <= 57)
+                int asciiCode = text[position];
+                if (asciiCode >= 48 && asciiCode <= 57)
                 {
                     returnString += text.Substring(position, 1);
                 }

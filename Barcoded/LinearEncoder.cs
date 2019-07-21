@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
@@ -6,28 +7,42 @@ namespace Barcoded
 {
     public abstract class LinearEncoder
     {
-        
         protected LinearEncoder(Symbology symbology)
         {
             Symbology = symbology;
         }
 
-        internal abstract void Setup();
-
+        /// <summary>
+        /// Encode the value using the barcode symbology selected.
+        /// </summary>
+        /// <param name="barcodeValue"></param>
         internal abstract void Encode(string barcodeValue);
 
+        /// <summary>
+        /// Set the minimum barcode height for the barcode symbology used.
+        /// </summary>
         internal abstract void SetMinBarcodeHeight();
 
-        internal abstract void SetMinXdimension();
+        /// <summary>
+        /// Set the minimum XDimension for the barcode symbology used.
+        /// </summary>
+        internal abstract void SetMinXDimension();
 
+        /// <summary>
+        /// Get the generated barcode as a bitmap image.
+        /// </summary>
+        /// <param name="barcodeValue"></param>
+        /// <returns>Barcode image</returns>
         internal MemoryStream GetImage(string barcodeValue)
         {
             LinearEncoding.Clear();
             Encode(BarcodeValidator.Parse(barcodeValue, Symbology));
             return LinearRenderer.DrawImageMemoryStream(this);
-
         }
 
+        /// <summary>
+        /// Reset the Property Changed flag to false.
+        /// </summary>
         internal void ResetPropertyChanged()
         {
             PropertyChanged = false;
@@ -40,8 +55,10 @@ namespace Barcoded
 
         public string Description { get; internal set; }
 
-        internal LinearEncoding LinearEncoding { get; private set; } = new LinearEncoding();
+        internal LinearEncoding LinearEncoding { get; } = new LinearEncoding();
 
+        internal string ZplEncode { get; set; }
+        
         /// <summary>
         /// Used to detect if any properties have changed
         /// </summary>
@@ -69,7 +86,7 @@ namespace Barcoded
             }
         }
 
-        private bool _humanReadableSymbolAligned = false;
+        private bool _humanReadableSymbolAligned;
         /// <summary>
         /// Sets the human readable label to align with associated barcode symbol
         /// </summary>
@@ -88,7 +105,7 @@ namespace Barcoded
 
         /// <summary>
         /// Sets the visibility and position of the human readable value.
-        /// Hidden, Above, Below, Embeded
+        /// Hidden, Above, Below, Embedded
         /// </summary>
         public HumanReadablePosition HumanReadablePosition { get; private set; }
         public void SetHumanReadablePosition(string position)
@@ -110,8 +127,8 @@ namespace Barcoded
                 case "HIDDEN":
                     HumanReadablePosition = HumanReadablePosition.Hidden;
                     break;
-                case "EMBEDED":
-                    HumanReadablePosition = HumanReadablePosition.Embeded;
+                case "EMBEDDED":
+                    HumanReadablePosition = HumanReadablePosition.Embedded;
                     break;
                 default:
                     HumanReadablePosition = HumanReadablePosition.Hidden;
@@ -132,12 +149,21 @@ namespace Barcoded
             {
                 pointSize = (int)SystemFonts.DefaultFont.Size;
             }
-            HumanReadableFont = new Font(new FontFamily(fontFamily) ?? SystemFonts.DefaultFont.FontFamily, pointSize) ?? SystemFonts.DefaultFont;
+
+            try
+            {
+                HumanReadableFont = new Font(new FontFamily(fontFamily), pointSize);
+            }
+            catch (Exception)
+            {
+                HumanReadableFont = SystemFonts.DefaultFont;
+            }
+
             PropertyChanged = true;
         }
 
-        private const int _barcodeHeightMin = 1;
-        private const int _barcodeHeightMax = 2400;
+        private const int BarcodeHeightMin = 1;
+        private const int BarcodeHeightMax = 2400;
 
         private int _barcodeHeight = 1;
         /// <summary>
@@ -152,7 +178,7 @@ namespace Barcoded
             set
             {
                 int barcodeHeightOriginal = value;
-                _barcodeHeight = (value < _barcodeHeightMin) ? _barcodeHeightMin : (value > _barcodeHeightMax) ? _barcodeHeightMax : value;
+                _barcodeHeight = (value < BarcodeHeightMin) ? BarcodeHeightMin : (value > BarcodeHeightMax) ? BarcodeHeightMax : value;
                 if(barcodeHeightOriginal != _barcodeHeight)
                 {
                     BarcodeHeightChanged = true;
@@ -161,32 +187,32 @@ namespace Barcoded
             }
         }
         
-        private int _xdimension = 1;
+        private int _xDimension = 1;
         /// <summary>
         /// X-dimension is the width of the narrowest bar element in the barcode.
         /// All other bar and spaces widths in the barcode are a multiple of this value.
         /// </summary>
-        public int Xdimension
+        public int XDimension
         {
             get
             {
-                return _xdimension;
+                return _xDimension;
             }
             set
             {
-                _xdimension = value;
+                _xDimension = value;
                 PropertyChanged = true;
             }
         }
 
-        private const int _dpiMin = 1;
-        private const int _dpiMax = 600;
+        private const int DpiMin = 1;
+        private const int DpiMax = 600;
 
         private int _dpi = 300;
         /// <summary>
         /// Sets the desired image dpi.
         /// </summary>
-        public int DPI
+        public int Dpi
         {
             get
             {
@@ -195,16 +221,16 @@ namespace Barcoded
             set
             {
                 int dpiOriginal = value;
-                _dpi = (value < _dpiMin) ? _dpiMin : (value > _dpiMax) ? _dpiMax : value;
+                _dpi = (value < DpiMin) ? DpiMin : (value > DpiMax) ? DpiMax : value;
                 if(dpiOriginal != _dpi)
                 {
-                    DPIChanged = true;
+                    DpiChanged = true;
                 }
                 PropertyChanged = true;
             }
         }
 
-        private int _targetWidth = 0;
+        private int _targetWidth;
         /// <summary>
         /// Target pixel width for the barcode.
         /// If set, the encoder will attempt to get as close to this value without exceeding, when generating the barcode
@@ -222,10 +248,10 @@ namespace Barcoded
             }
         }
 
-        private bool _showEncoding = false;
+        private bool _showEncoding;
         /// <summary>
         /// When true, will include a human readable label of the barcode encoding values
-        /// for the coresponding part of the barcode. The postition of this label will adjust
+        /// for the corresponding part of the barcode. The position of this label will adjust
         /// top or bottom, dependent on the use of a human readable value and its position. Default is top.
         /// </summary>
         public bool ShowEncoding
@@ -249,11 +275,19 @@ namespace Barcoded
 
         public void SetEncodingFontFamily(string fontFamily)
         {
-            EncodingFontFamily = new FontFamily(fontFamily) ?? SystemFonts.DefaultFont.FontFamily;
+            try
+            {
+                EncodingFontFamily = new FontFamily(fontFamily);
+            }
+            catch (Exception)
+            {
+                EncodingFontFamily = SystemFonts.DefaultFont.FontFamily;
+            }
+
             PropertyChanged = true;
         }
 
-        private bool _quietzone = false;
+        private bool _quietzone;
         /// <summary>
         /// Sets the starting subset to "A" or "B", where an explicit subset is not required.
         /// Will default to "A" if not set.
@@ -276,23 +310,24 @@ namespace Barcoded
         {
             get
             {
-                return ImageCodec.CodecName;
+                return ImageCodec.FormatDescription;
             }
             set
             {
                 ImageCodec = ImageHelpers.FindCodecInfo(value);
+                PropertyChanged = true;
             }
         }
 
         public int BarcodeWidth { get; internal set; }
 
-        public bool XdimensionChanged { get; internal set; }
+        public bool XDimensionChanged { get; internal set; }
 
         public bool BarcodeHeightChanged { get; internal set; }
 
-        public bool DPIChanged { get; internal set; }
+        public bool DpiChanged { get; internal set; }
 
-        public bool HumanReadabaleFontSizeChanged { get; internal set; }
+        public bool HumanReadableFontSizeChanged { get; internal set; }
 
     }
 }

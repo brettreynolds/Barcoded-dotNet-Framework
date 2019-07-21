@@ -7,28 +7,28 @@ namespace Barcoded
     {
 
         //public Dictionary<int, int> Symbols { get; set; } = new Dictionary<int, int>();
-        public Dictionary<int, LinearSymbol> Symbols { get; private set; } = new Dictionary<int, LinearSymbol>();
+        public Dictionary<int, LinearSymbol> Symbols { get; } = new Dictionary<int, LinearSymbol>();
 
         public int MinimumWidth { get; private set; }
 
-        public void Add(string character, int characterType, LinearPattern pattern)
+        internal void Add(string character, int characterType, LinearPattern pattern)
         {
-            int Position = this.Symbols.Count;
-            this.Add(Position, character, characterType, pattern);
+            int position = Symbols.Count;
+            Add(position, character, characterType, pattern);
         }
 
-        public void Add(int position, string character, int characterType, LinearPattern pattern)
+        internal void Add(int position, string character, int characterType, LinearPattern pattern)
         {
             int width = pattern.GetWidth();
-            LinearSymbol Symbol = new LinearSymbol(character, characterType, pattern, width);
-            this.Symbols.Add(position, Symbol);
+            LinearSymbol symbol = new LinearSymbol(character, characterType, pattern, width);
+            Symbols.Add(position, symbol);
             MinimumWidth += width;
         }
 
         public void Clear()
         {
-            this.MinimumWidth = 0;
-            this.Symbols.Clear();
+            MinimumWidth = 0;
+            Symbols.Clear();
         }
 
         /// <summary>

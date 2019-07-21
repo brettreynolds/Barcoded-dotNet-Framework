@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Barcoded
 {
+    /// <summary>
+    /// Linear (one-dimensional) barcode.
+    /// </summary>
     public class LinearBarcode
     {
-        private bool _barcodeValueChanged = false;
+        private bool _barcodeValueChanged;
         
         /// <summary>
         /// Barcode symbology.
         /// </summary>
-        public Symbology Symbology { get; private set; }
+        public Symbology Symbology { get; }
 
         private string _barcodeValue;
         /// <summary>
@@ -22,10 +24,7 @@ namespace Barcoded
         /// </summary>
         public string BarcodeValue
         {
-            get
-            {
-                return _barcodeValue;
-            }
+            get => _barcodeValue;
             set
             {
                 _barcodeValue = value;
@@ -41,29 +40,49 @@ namespace Barcoded
         {
             get
             {
-                //Check that barcode value is not an empty string.
-                if (string.IsNullOrEmpty(this.BarcodeValue))
-                {
-                    BarcodeValue = "EMPTY";
-                    Encoder.SetHumanReadablePosition("Below");
-                    Encoder.HumanReadableValue = "EMPTY";
-                }
-
-                if (_barcodeValueChanged == true | this.Encoder.PropertyChanged == true)
-                {
-                    MemoryStream imageMemoryStream = this.Encoder.GetImage(BarcodeValue);
-                    _image = Image.FromStream(imageMemoryStream);
-                    _barcodeValueChanged = false;
-                }
-
+                UpdateBarcode();
                 return _image;
+            }
+        }
+
+        private LinearVectors _vectors;
+        /// <summary>
+        /// Barcode vectors.
+        /// </summary>
+        public LinearVectors Vectors
+        {
+            get
+            {
+                UpdateBarcode();
+                return _vectors;
+            }
+        }
+
+        /// <summary>
+        /// Minimum point width for the given encoding value.
+        /// </summary>
+        public int MinimumPointWidth
+        {
+            get
+            {
+                Encoder.Encode(BarcodeValue);
+                return Encoder.LinearEncoding.MinimumWidth;
+            }
+        }
+
+        public string ZplEncode
+        {
+            get
+            {
+                Encoder.Encode(BarcodeValue);
+                return Encoder.ZplEncode;
             }
         }
 
         /// <summary>
         /// Barcode symbology encoder.
         /// </summary>
-        public LinearEncoder Encoder { get; private set; }
+        public LinearEncoder Encoder { get; }
 
         /// <summary>
         /// Creates a barcode image from the declared value and desired symbology.
@@ -116,9 +135,13 @@ namespace Barcoded
             }
         }
 
+        /// <summary>
+        /// Get a list of available barcode symbologies.
+        /// </summary>
+        /// <returns>Returns barcode symbology text list.</returns>
         public static List<string> GetSymbologies()
         {
-            List<String> symbologies = Enum.GetValues(typeof(Symbology))
+            List<string> symbologies = Enum.GetValues(typeof(Symbology))
                 .Cast<Symbology>()
                 .Select(v => v.ToString())
                 .ToList();
@@ -126,9 +149,13 @@ namespace Barcoded
             return symbologies;
         }
 
+        /// <summary>
+        /// Get a list of available human readable text positions.
+        /// </summary>
+        /// <returns>Returns human readable text list.</returns>
         public static List<string> GetHumanReadablePositions()
         {
-            List<String> humanReadablePositions = Enum.GetValues(typeof(HumanReadablePosition))
+            List<string> humanReadablePositions = Enum.GetValues(typeof(HumanReadablePosition))
                 .Cast<HumanReadablePosition>()
                 .Select(v => v.ToString())
                 .ToList();
@@ -173,14 +200,36 @@ namespace Barcoded
         /// <returns>Byte array of the barcode image.</returns>
         public byte[] SaveImage(string codec)
         {
-            this.Encoder.CodecName = codec;
+            Encoder.CodecName = codec;
             
-            MemoryStream imageMemoryStream = this.Encoder.GetImage(BarcodeValue);
+            MemoryStream imageMemoryStream = Encoder.GetImage(BarcodeValue);
             _image = Image.FromStream(imageMemoryStream);
+            _vectors = new LinearVectors(Encoder);
             _barcodeValueChanged = false;
             return imageMemoryStream.ToArray();
 
         }
 
+        /// <summary>
+        /// Checks if any barcode settings have changed since the last call and creates a new barcode if they have.
+        /// </summary>
+        private void UpdateBarcode()
+        {
+            //Check that barcode value is not an empty string.
+            if (string.IsNullOrEmpty(BarcodeValue))
+            {
+                BarcodeValue = "EMPTY";
+                Encoder.SetHumanReadablePosition("Below");
+                Encoder.HumanReadableValue = "EMPTY";
+            }
+
+            if (_barcodeValueChanged | Encoder.PropertyChanged)
+            {
+                MemoryStream imageMemoryStream = Encoder.GetImage(BarcodeValue);
+                _image = Image.FromStream(imageMemoryStream);
+                _vectors = new LinearVectors(Encoder);
+                _barcodeValueChanged = false;
+            }
+        }
     }
 }

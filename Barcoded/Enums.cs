@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Barcoded
+﻿namespace Barcoded
 {
     public enum Symbology
     {
@@ -21,7 +17,7 @@ namespace Barcoded
         Hidden,
         Above,
         Below,
-        Embeded
+        Embedded
     };
 
     public enum Code128Subset
@@ -32,7 +28,7 @@ namespace Barcoded
         Null
     }
 
-    internal enum ModuleType
+    public enum ModuleType
     {
         Bar,
         Space

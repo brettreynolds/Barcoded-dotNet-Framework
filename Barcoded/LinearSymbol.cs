@@ -1,6 +1,9 @@
 ﻿namespace Barcoded
 {
-    class LinearSymbol
+    /// <summary>
+    /// Barcode encoding symbol for a given character or function
+    /// </summary>
+    internal class LinearSymbol
     {
         public string Character { get; set; }
         public int CharacterType { get; set; }
@@ -9,10 +12,10 @@
 
         internal LinearSymbol(string character, int characterType, LinearPattern pattern, int width)
         {
-            this.Character = character;
-            this.CharacterType = characterType;
-            this.Pattern = pattern;
-            this.Width = width;
+            Character = character;
+            CharacterType = characterType;
+            Pattern = pattern;
+            Width = width;
         }
     }
 }

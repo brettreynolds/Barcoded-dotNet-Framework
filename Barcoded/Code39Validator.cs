@@ -2,7 +2,7 @@
 
 namespace Barcoded
 {
-    class Code39Validator : ILinearValidator
+    internal class Code39Validator : ILinearValidator
     {
         /// <summary>
         /// Returns a string compatible with the given Code39 symbology.
@@ -15,9 +15,9 @@ namespace Barcoded
             switch (symbology)
             {
                 case Symbology.Code39Full:
-                    return LinearHelpers.GetOnlyASCII(text);
+                    return LinearHelpers.GetOnlyAscii(text);
                 case Symbology.Code39FullC:
-                    return LinearHelpers.GetOnlyASCII(text);
+                    return LinearHelpers.GetOnlyAscii(text);
                 default:
                     return GetOnlyCode39(text);
             }

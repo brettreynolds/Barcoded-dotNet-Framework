@@ -60,6 +60,7 @@
     <Compile Include="LinearPattern.cs" />
     <Compile Include="LinearRenderer.cs" />
     <Compile Include="LinearSymbol.cs" />
+    <Compile Include="LinearVectors.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
