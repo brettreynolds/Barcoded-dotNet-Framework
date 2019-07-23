@@ -12,7 +12,6 @@ namespace Barcoded
         private Dictionary<int, LinearPattern> _patternDictionary;
 
         private int _checkDigit;
-
         private bool SuppressSubsetC { get; }
 
         private Code128Subset StartSubset { get; }

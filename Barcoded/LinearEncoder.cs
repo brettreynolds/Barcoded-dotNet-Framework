@@ -5,6 +5,7 @@ using System.IO;
 
 namespace Barcoded
 {
+
     public abstract class LinearEncoder
     {
         protected LinearEncoder(Symbology symbology)
@@ -49,23 +50,29 @@ namespace Barcoded
         }
 
         /// <summary>
-        /// Barcode symbology
+        /// Barcode symbology.
         /// </summary>
         public Symbology Symbology { get; set; }
 
+        /// <summary>
+        /// Encoder description.
+        /// </summary>
         public string Description { get; internal set; }
 
         internal LinearEncoding LinearEncoding { get; } = new LinearEncoding();
 
+        /// <summary>
+        /// ZPL encoded string.
+        /// </summary>
         internal string ZplEncode { get; set; }
         
         /// <summary>
-        /// Used to detect if any properties have changed
+        /// Used to detect if any properties have changed.
         /// </summary>
         public bool PropertyChanged { get; internal set; }
 
         /// <summary>
-        /// Symbology specific validator
+        /// Symbology specific validator.
         /// </summary>
         internal abstract ILinearValidator BarcodeValidator { get; }
 
@@ -75,10 +82,7 @@ namespace Barcoded
         /// </summary>
         public string HumanReadableValue
         {
-            get
-            {
-                return _humanReadableValue;
-            }
+            get => _humanReadableValue;
             set
             {
                 _humanReadableValue = value;
@@ -92,10 +96,7 @@ namespace Barcoded
         /// </summary>
         public bool HumanReadableSymbolAligned
         {
-            get
-            {
-                return _humanReadableSymbolAligned;
-            }
+            get => _humanReadableSymbolAligned;
             set
             {
                 _humanReadableSymbolAligned = value;
@@ -143,6 +144,11 @@ namespace Barcoded
         /// </summary>
         public Font HumanReadableFont { get; internal set; } = SystemFonts.DefaultFont;
 
+        /// <summary>
+        /// Set the font to be used for the human readable label.
+        /// </summary>
+        /// <param name="fontFamily"></param>
+        /// <param name="pointSize"></param>
         public void SetHumanReadableFont(string fontFamily, int pointSize)
         {
             if(pointSize < 1)
@@ -171,10 +177,7 @@ namespace Barcoded
         /// </summary>
         public int BarcodeHeight
         {
-            get
-            {
-                return _barcodeHeight;
-            }
+            get => _barcodeHeight;
             set
             {
                 int barcodeHeightOriginal = value;
@@ -194,10 +197,7 @@ namespace Barcoded
         /// </summary>
         public int XDimension
         {
-            get
-            {
-                return _xDimension;
-            }
+            get => _xDimension;
             set
             {
                 _xDimension = value;
@@ -214,10 +214,7 @@ namespace Barcoded
         /// </summary>
         public int Dpi
         {
-            get
-            {
-                return _dpi;
-            }
+            get => _dpi;
             set
             {
                 int dpiOriginal = value;
@@ -237,10 +234,7 @@ namespace Barcoded
         /// </summary>
         public int TargetWidth
         {
-            get
-            {
-                return _targetWidth;
-            }
+            get => _targetWidth;
             set
             {
                 _targetWidth = value;
@@ -256,10 +250,7 @@ namespace Barcoded
         /// </summary>
         public bool ShowEncoding
         {
-            get
-            {
-                return _showEncoding;
-            }
+            get => _showEncoding;
             set
             {
                 _showEncoding = value;
@@ -294,10 +285,7 @@ namespace Barcoded
         /// </summary>
         public bool Quietzone
         {
-            get
-            {
-                return _quietzone;
-            }
+            get => _quietzone;
             set
             {
                 _quietzone = value;
@@ -305,13 +293,10 @@ namespace Barcoded
             }
         }
 
-        public ImageCodecInfo ImageCodec { get; private set; } = ImageHelpers.FindCodecInfo("JPEG");
+        public ImageCodecInfo ImageCodec { get; private set; } = ImageHelpers.FindCodecInfo("PNG");
         public string CodecName
         {
-            get
-            {
-                return ImageCodec.FormatDescription;
-            }
+            get => ImageCodec.FormatDescription;
             set
             {
                 ImageCodec = ImageHelpers.FindCodecInfo(value);
@@ -319,14 +304,29 @@ namespace Barcoded
             }
         }
 
+        /// <summary>
+        /// Width of the generated barcode.
+        /// </summary>
         public int BarcodeWidth { get; internal set; }
 
+        /// <summary>
+        /// Indicates if the X-dimension was altered to accomodate symbology constraints.
+        /// </summary>
         public bool XDimensionChanged { get; internal set; }
 
+        /// <summary>
+        /// Indicates if the barcode height was altered to accomodate symbology constraints.
+        /// </summary>
         public bool BarcodeHeightChanged { get; internal set; }
 
+        /// <summary>
+        /// Indicates if DPI was adjusted to fit system set constraints.
+        /// </summary>
         public bool DpiChanged { get; internal set; }
 
+        /// <summary>
+        /// Indicates if the human readable font size was changed to prevent text exceeding barcode width.
+        /// </summary>
         public bool HumanReadableFontSizeChanged { get; internal set; }
 
     }

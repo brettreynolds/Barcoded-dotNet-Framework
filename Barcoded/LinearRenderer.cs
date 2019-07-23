@@ -9,24 +9,30 @@ namespace Barcoded
     {
         private const int MaximumPixelWidth = 12000; // 20" at maximum DPI of 600
 
+        /// <summary>
+        /// Holds the x & y position of the ImageElement.
+        /// </summary>
         internal class Position
         {
-            public int XPosition { get; set; }
-            public int YPosition { get; set; }
+            internal int XPosition { get; set; }
+            internal int YPosition { get; set; }
 
-            public Position(int xPosition = 0, int yPosition = 0)
+            internal Position(int xPosition = 0, int yPosition = 0)
             {
                 XPosition = xPosition;
                 YPosition = yPosition;
             }
         }
 
+        /// <summary>
+        /// Holds the width and height of the ImageElement.
+        /// </summary>
         internal class Size
         {
-            public int Width { get; set; }
-            public int Height { get; set; }
+            internal int Width { get; set; }
+            internal int Height { get; set; }
 
-            public Size(int width = 0, int height = 0)
+            internal Size(int width = 0, int height = 0)
             {
                 Width = width;
                 Height = height;
@@ -38,25 +44,25 @@ namespace Barcoded
         /// </summary>
         internal class ImageElement
         {
-            public Bitmap Image { get; set; }
-            public Position Position { get; set; }
-            public Size Size { get; set; }
+            internal Bitmap Image { get; set; }
+            internal Position Position { get; set; }
+            internal Size Size { get; set; }
 
-            public ImageElement()
+            internal ImageElement()
             {
                 Image = new Bitmap(1, 1);
                 Position = new Position();
                 Size = new Size();
             }
 
-            public ImageElement(Bitmap image)
+            internal ImageElement(Bitmap image)
             {
                 Image = image;
                 Position = new Position();
                 Size = new Size(image.Width, image.Height);
             }
 
-            public void UpdateImage(Bitmap image)
+            internal void UpdateImage(Bitmap image)
             {
                 Image = image;
                 Size.Width = image.Width;

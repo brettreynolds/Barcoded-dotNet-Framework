@@ -142,6 +142,9 @@ namespace Barcoded
             }
         }
 
+        /// <summary>
+        /// Load the Full ASCII 
+        /// </summary>
         private void LoadCode39FullAsciiDictionary()
         {
             if (_symbolDictionary != null)
