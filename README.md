@@ -2,8 +2,8 @@
 # Barcoded
 A C#/.NET library to generate barcode images for either Code128 or Code 39 symbologies.
 
-![Nuget](https://img.shields.io/nuget/v/Barcoded)
-![Nuget](https://img.shields.io/nuget/dt/Barcoded)
+[![Nuget](https://img.shields.io/nuget/v/Barcoded)](https://www.nuget.org/packages/Barcoded/1.0.1)
+[![Nuget](https://img.shields.io/nuget/dt/Barcoded)](https://www.nuget.org/packages/Barcoded/)
 ## Usage
 ```C#
 LinearBarcode newBarcode = new LinearBarcode("SomeValue", Symbology.Code128BAC)
