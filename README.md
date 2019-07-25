@@ -9,8 +9,8 @@ LinearBarcode newBarcode = new LinearBarcode("SomeValue", Symbology.Code128BAC)
     {
     Encoder =
         {
-        Dpi = 300,
-        BarcodeHeight = 200
+            Dpi = 300,
+            BarcodeHeight = 200
         }
     };
 ```
