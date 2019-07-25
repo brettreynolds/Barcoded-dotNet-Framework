@@ -1,8 +1,9 @@
 ![Barcoded Icon](https://barcoded.online/Assets/Barcode%20Icon%201.svg)
 # Barcoded
-
 A C#/.NET library to generate barcode images for either Code128 or Code 39 symbologies.
 
+![Nuget](https://img.shields.io/nuget/v/Barcoded)
+![Nuget](https://img.shields.io/nuget/dt/Barcoded)
 ## Usage
 ```C#
 LinearBarcode newBarcode = new LinearBarcode("SomeValue", Symbology.Code128BAC)
@@ -53,3 +54,8 @@ LinearBarcode newBarcode = new LinearBarcode("SomeValue", Symbology.Code128BAC)
   ```C#
   newBarcode.Encoder.Quietzone = true;
   ```
+
+## Demo
+
+Website: https://barcoded.online/
+provides a web UI that utilises the **Barcoded** library. Registration is required to support emailing of generated barcodes.
