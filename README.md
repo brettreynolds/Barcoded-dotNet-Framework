@@ -21,6 +21,11 @@ LinearBarcode newBarcode = new LinearBarcode("SomeValue", Symbology.Code128BAC)
 * **Supported Symbologies**
   - Code128 (Subsets A,B & C)
   - Code39 (Standard & Full ASCII)
+  - GS1-128
+  - EAN-13
+  - EAN-8
+  - UPC-A
+  - Interleaved 2 of 5
   
 * **Human Readable Label**
   - Discrete Text
