@@ -17,8 +17,8 @@
 
         internal LinearModule(ModuleType moduleType, int width)
         {
-            this.ModuleType = moduleType;
-            this.Width = width;
+            ModuleType = moduleType;
+            Width = width;
         }
     }
 }

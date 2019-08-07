@@ -8,7 +8,7 @@ namespace Barcoded
     internal static class LinearRenderer
     {
         private const int MaximumPixelWidth = 12000; // 20" at maximum DPI of 600
-
+        
         /// <summary>
         /// Holds the x & y position of the ImageElement.
         /// </summary>
@@ -80,53 +80,69 @@ namespace Barcoded
             // Ensure the x-dimension selected doesn't result in a width that exceeds maximum allowable.
             linearEncoder.XDimension = Math.Min(linearEncoder.XDimension, GetXDimensionForTargetWidth(MaximumPixelWidth, linearEncoder.LinearEncoding.MinimumWidth));
 
-            // Create each of the image elements.
-            ImageElement encodingTextImage = GetEncodingImage(linearEncoder);
-            ImageElement barcodeImage = GetBarcodeImage(linearEncoder);
-
-            linearEncoder.BarcodeWidth = barcodeImage.Size.Width;
-
-            ImageElement labelTextImage = linearEncoder.HumanReadableSymbolAligned ? GetLabelValueImageSymbolAligned(linearEncoder) : GetLabelValueImageCentered(linearEncoder);
-
-            // Adjust each element position, dependent on label text visibility and position.
-            switch (linearEncoder.HumanReadablePosition)
+            switch (linearEncoder.Symbology)
             {
-                case HumanReadablePosition.Above:     //Label above the barcode
-                    barcodeImage.Position.YPosition += labelTextImage.Size.Height;
-                    encodingTextImage.Position.YPosition += labelTextImage.Size.Height + barcodeImage.Size.Height;
+                case Symbology.Ean13:
+                    linearEncoder.Quietzone = true;
+                    linearEncoder.SetHumanReadablePosition("Embedded");
+                    linearEncoder.HumanReadableSymbolAligned = true;
                     break;
-                case HumanReadablePosition.Embedded:     //Embedded the barcode
-                    barcodeImage.Position.YPosition += encodingTextImage.Size.Height;
-                    labelTextImage.Position.YPosition += encodingTextImage.Size.Height + barcodeImage.Size.Height - (labelTextImage.Size.Height / 2);
-                    break;
-                default:    //Label below the barcode
-                    barcodeImage.Position.YPosition += encodingTextImage.Size.Height;
-                    labelTextImage.Position.YPosition += encodingTextImage.Size.Height + barcodeImage.Size.Height;
-                    break;
-            }
 
-            // Set the required image height by adding the barcode height to the encoding text or value label text heights (if visible)
-            int imageHeight = barcodeImage.Size.Height + encodingTextImage.Size.Height + labelTextImage.Size.Height;
+                case Symbology.UpcA:
+                    linearEncoder.Quietzone = true;
+                    linearEncoder.SetHumanReadablePosition("Embedded");
+                    linearEncoder.HumanReadableSymbolAligned = true;
+                    break;
 
-            // Reduce the image height if human readable position is embedded
-            if (linearEncoder.HumanReadablePosition == HumanReadablePosition.Embedded)
-            {
-                imageHeight -= (labelTextImage.Size.Height / 2);
+                case Symbology.Ean8:
+                    linearEncoder.Quietzone = true;
+                    linearEncoder.SetHumanReadablePosition("Embedded");
+                    linearEncoder.HumanReadableSymbolAligned = true;
+                    break;
             }
 
             int quietzone = 0;
             if (linearEncoder.Quietzone)
             {
-                quietzone = Math.Max(20 * linearEncoder.XDimension, linearEncoder.Dpi / 4);
+                quietzone = Math.Max(20 * linearEncoder.XDimension, linearEncoder.Dpi / 4) / 2;
+            }
+
+            // Create each of the image elements.
+            ImageElement encodingTextImage = GetEncodingImage(linearEncoder, quietzone);
+            ImageElement barcodeImage = GetBarcodeImage(linearEncoder, quietzone);
+
+            linearEncoder.BarcodeWidth = barcodeImage.Size.Width;
+
+            ImageElement humanReadableImage = linearEncoder.HumanReadableSymbolAligned ? GetHumanReadableImageSymbolAligned(linearEncoder, quietzone) : GetHumanReadableImageCentered(linearEncoder, quietzone);
+
+            // Adjust each element position, dependent on label text visibility and position.
+            switch (linearEncoder.HumanReadablePosition)
+            {
+                case HumanReadablePosition.Above:     //Label above the barcode
+                    barcodeImage.Position.YPosition += humanReadableImage.Size.Height;
+                    encodingTextImage.Position.YPosition += humanReadableImage.Size.Height + barcodeImage.Size.Height;
+                    break;
+                case HumanReadablePosition.Embedded:     //Embedded the barcode
+                    barcodeImage.Position.YPosition += encodingTextImage.Size.Height;
+                    humanReadableImage.Position.YPosition += encodingTextImage.Size.Height + barcodeImage.Size.Height - (humanReadableImage.Size.Height / 2);
+                    break;
+                default:    //Label below the barcode
+                    barcodeImage.Position.YPosition += encodingTextImage.Size.Height;
+                    humanReadableImage.Position.YPosition += encodingTextImage.Size.Height + barcodeImage.Size.Height;
+                    break;
+            }
+
+            // Set the required image height by adding the barcode height to the encoding text or value label text heights (if visible)
+            int imageHeight = barcodeImage.Size.Height + encodingTextImage.Size.Height + humanReadableImage.Size.Height;
+
+            // Reduce the image height if human readable position is embedded
+            if (linearEncoder.HumanReadablePosition == HumanReadablePosition.Embedded)
+            {
+                imageHeight -= (humanReadableImage.Size.Height / 2);
             }
 
             // Set the required image width by taking the greater of the barcode width and value label text width (if used).
-            int imageWidth = Math.Max(barcodeImage.Size.Width + quietzone, labelTextImage.Size.Width);
-
-            // Align all elements to center of image.
-            labelTextImage.Position.XPosition = (imageWidth - labelTextImage.Size.Width) / 2;
-            barcodeImage.Position.XPosition = (imageWidth - barcodeImage.Size.Width) / 2;
-            encodingTextImage.Position.XPosition = (imageWidth - barcodeImage.Size.Width) / 2;
+            int imageWidth = Math.Max(barcodeImage.Size.Width + (quietzone * 2), humanReadableImage.Size.Width);
 
             // Create the combined image.
             Bitmap combinedImage = new Bitmap(imageWidth, imageHeight);
@@ -137,7 +153,7 @@ namespace Barcoded
             combinedGraphics.FillRectangle(Brushes.White, 0, 0, combinedImage.Width, combinedImage.Height);
             combinedGraphics.DrawImageUnscaled(barcodeImage.Image, barcodeImage.Position.XPosition, barcodeImage.Position.YPosition);
             combinedGraphics.DrawImageUnscaled(encodingTextImage.Image, encodingTextImage.Position.XPosition, encodingTextImage.Position.YPosition);
-            combinedGraphics.DrawImageUnscaled(labelTextImage.Image, labelTextImage.Position.XPosition, labelTextImage.Position.YPosition);
+            combinedGraphics.DrawImageUnscaled(humanReadableImage.Image, humanReadableImage.Position.XPosition, humanReadableImage.Position.YPosition);
 
             // Save the image to the memory stream.
             EncoderParameters encodingParams = new EncoderParameters(1)
@@ -154,7 +170,7 @@ namespace Barcoded
 
             // Dispose of the objects we won't need any more.
             barcodeImage.Image.Dispose();
-            labelTextImage.Image.Dispose();
+            humanReadableImage.Image.Dispose();
             encodingTextImage.Image.Dispose();
             combinedGraphics.Dispose();
             combinedImage.Dispose();
@@ -173,17 +189,23 @@ namespace Barcoded
         /// Creates the label value image element.
         /// </summary>
         /// <param name="linearEncoder"></param>
+        /// <param name="quietzone"></param>
         /// <returns>The generated label value image inside an ImageElement object.</returns>
-        internal static ImageElement GetLabelValueImageCentered(LinearEncoder linearEncoder)
+        internal static ImageElement GetHumanReadableImageCentered(LinearEncoder linearEncoder, int quietzone)
         {
-
             // Create an empty ImageElement
-            ImageElement labelValueElement = new ImageElement();
+            ImageElement humanReadableElement = new ImageElement();
 
-            // If the label value is not visible or the label value text is not supplied, return the empty ImageElement
-            if (linearEncoder.HumanReadablePosition == HumanReadablePosition.Hidden | string.IsNullOrWhiteSpace(linearEncoder.HumanReadableValue))
+            // If the human readable position is set to hidden, return the empty ImageElement
+            if (linearEncoder.HumanReadablePosition == HumanReadablePosition.Hidden)
             {
-                return labelValueElement;
+                return humanReadableElement;
+            }
+
+            // If the human readable is set to a visible position, but has no value, take the barcode value
+            if (string.IsNullOrWhiteSpace(linearEncoder.HumanReadableValue))
+            {
+                linearEncoder.HumanReadableValue = linearEncoder.EncodedValue;
             }
 
             // Calculate the barcode image width from the minimum width multiplied by the x-dimension
@@ -205,86 +227,117 @@ namespace Barcoded
             SizeF labelTextSize = ImageHelpers.GetStringElementSize(linearEncoder.HumanReadableValue, linearEncoder.HumanReadableFont, linearEncoder.Dpi);
 
             // Create a new bitmap image for the label value text based on the calculated dimensions
-            labelValueElement.UpdateImage(new Bitmap((int)Math.Ceiling(labelTextSize.Width), (int)Math.Ceiling(labelTextSize.Height)));
-            labelValueElement.Image.SetResolution(linearEncoder.Dpi, linearEncoder.Dpi);
+            humanReadableElement.UpdateImage(new Bitmap((int)Math.Ceiling(labelTextSize.Width), (int)Math.Ceiling(labelTextSize.Height)));
+            humanReadableElement.Image.SetResolution(linearEncoder.Dpi, linearEncoder.Dpi);
 
             // Create a new graphics to draw on the barcode image
-            Graphics labelValueGraphics = Graphics.FromImage(labelValueElement.Image);
+            Graphics labelValueGraphics = Graphics.FromImage(humanReadableElement.Image);
 
-            labelValueGraphics.FillRectangle(Brushes.White, 1, 1, labelValueElement.Image.Width, labelValueElement.Image.Height);
+            labelValueGraphics.FillRectangle(Brushes.White, 1, 1, humanReadableElement.Image.Width, humanReadableElement.Image.Height);
             labelValueGraphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             labelValueGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             labelValueGraphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
             labelValueGraphics.DrawString(linearEncoder.HumanReadableValue, linearEncoder.HumanReadableFont, Brushes.Black, 1, 1);
             labelValueGraphics.Flush();
+            humanReadableElement.Position.XPosition = quietzone + (barcodeWidth - (int)labelTextSize.Width) / 2;
 
-            return labelValueElement;
+            return humanReadableElement;
         }
 
         /// <summary>
         /// Creates the label value image element.
         /// </summary>
         /// <param name="linearEncoder"></param>
+        /// <param name="quietzone"></param>
         /// <returns>The generated label value image inside an ImageElement object.</returns>
-        internal static ImageElement GetLabelValueImageSymbolAligned(LinearEncoder linearEncoder)
+        internal static ImageElement GetHumanReadableImageSymbolAligned(LinearEncoder linearEncoder, int quietzone)
         {
             // Create an empty ImageElement
-            ImageElement labelValueElement = new ImageElement();
+            ImageElement humanReadableElement = new ImageElement();
 
-            // If the label value is not visible or the label value text is not supplied, return the empty ImageElement
-            if (linearEncoder.HumanReadablePosition == HumanReadablePosition.Hidden | string.IsNullOrWhiteSpace(linearEncoder.HumanReadableValue))
+            // If the human readable position is set to hidden, return the empty ImageElement
+            if (linearEncoder.HumanReadablePosition == HumanReadablePosition.Hidden)
             {
-                return labelValueElement;
+                return humanReadableElement;
             }
 
             // Setup the label font with initial value "A" to assist calculating label element height later
-            Font labelValueFont = ImageHelpers.GetSizedFontForWidth(1, linearEncoder.LinearEncoding.GetWidestSymbol() * linearEncoder.XDimension, linearEncoder.Dpi, linearEncoder.HumanReadableFont);
+            Font humanReadableFont = ImageHelpers.GetSizedFontForWidth(1, linearEncoder.LinearEncoding.GetWidestSymbol() * linearEncoder.XDimension, linearEncoder.Dpi, linearEncoder.HumanReadableFont);
 
             // Set the text size so that we can get the encoding element height later
-            SizeF labelValueSize = ImageHelpers.GetStringElementSize("A", labelValueFont, linearEncoder.Dpi);
+            SizeF humanReadableSize = ImageHelpers.GetStringElementSize("W", humanReadableFont, linearEncoder.Dpi);
+
+            int prefixWidth = linearEncoder.LinearEncoding.HumanReadablePrefix?.Length * (int)humanReadableSize.Width ?? 0;
+            int suffixWidth = linearEncoder.LinearEncoding.HumanReadableSuffix?.Length * (int)humanReadableSize.Width ?? 0;
 
             // Set the encoding image width from the minimum width multiplied by the x-dimension
-            int labelImageWidth = linearEncoder.LinearEncoding.MinimumWidth * linearEncoder.XDimension;
+            int humanReadableImageWidth = linearEncoder.LinearEncoding.MinimumWidth * linearEncoder.XDimension + prefixWidth + suffixWidth;
 
             //Create a new bitmap image for the encoding text based on the calculated dimensions
-            labelValueElement.UpdateImage(new Bitmap(labelImageWidth, (int)Math.Ceiling(labelValueSize.Height)));
-            labelValueElement.Image.SetResolution(linearEncoder.Dpi, linearEncoder.Dpi);
+            humanReadableElement.UpdateImage(new Bitmap(humanReadableImageWidth, (int)Math.Ceiling(humanReadableSize.Height)));
+            humanReadableElement.Image.SetResolution(linearEncoder.Dpi, linearEncoder.Dpi);
 
             // Create a new graphics to draw on the encoded text image
-            Graphics labelValueGraphics = Graphics.FromImage(labelValueElement.Image);
-            //LabelValueGraphics.FillRectangle(Brushes.White, 0, 0, LabelImageWidth, (int)LabelValueSize.Height);
+            Graphics humanReadableGraphics = Graphics.FromImage(humanReadableElement.Image);
 
             int xPosition = 0;
             int yPosition = 0;
 
+            StringFormat humanReadableFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Center
+            };
+
+            RectangleF humanReadableRectangle;
+
+            // Add any human readable prefix
+            if (linearEncoder.LinearEncoding.HumanReadablePrefix != null)
+            {
+                humanReadableRectangle = new RectangleF(xPosition, yPosition, prefixWidth, humanReadableElement.Image.Height);
+                humanReadableGraphics.FillRectangle(Brushes.White, humanReadableRectangle);
+                humanReadableGraphics.DrawString(linearEncoder.LinearEncoding.HumanReadablePrefix, humanReadableFont, Brushes.Black, humanReadableRectangle, humanReadableFormat);
+                xPosition += prefixWidth;
+            }
+
             for (int symbol = 0; symbol <= linearEncoder.LinearEncoding.Symbols.Count - 1; symbol++)
             {
-                string labelCharacter = linearEncoder.LinearEncoding.Symbols[symbol].Character;
-                labelValueFont = ImageHelpers.GetSizedFontForWidth(labelCharacter.Length, linearEncoder.LinearEncoding.Symbols[symbol].Width * linearEncoder.XDimension, linearEncoder.Dpi, linearEncoder.HumanReadableFont);
+                string humanReadableCharacter = linearEncoder.LinearEncoding.Symbols[symbol].Character;
+                Font humanReadableCharacterFont = ImageHelpers.GetSizedFontForWidth(humanReadableCharacter.Length, linearEncoder.LinearEncoding.Symbols[symbol].Width * linearEncoder.XDimension, linearEncoder.Dpi, linearEncoder.HumanReadableFont);
 
                 int symbolWidth = linearEncoder.LinearEncoding.Symbols[symbol].Width;
 
-                if (linearEncoder.LinearEncoding.Symbols[symbol].CharacterType != 1)
+                if (linearEncoder.LinearEncoding.Symbols[symbol].CharacterType == 0)
                 {
-                    labelValueGraphics.FillRectangle(Brushes.White, xPosition, yPosition, symbolWidth * linearEncoder.XDimension, labelValueElement.Image.Height);
-                    labelValueGraphics.DrawString(labelCharacter, labelValueFont, Brushes.Black, xPosition, yPosition);
+                    humanReadableRectangle = new RectangleF(xPosition, yPosition, symbolWidth * linearEncoder.XDimension, humanReadableElement.Image.Height);
+                    humanReadableGraphics.FillRectangle(Brushes.White, humanReadableRectangle);
+                    humanReadableGraphics.DrawString(humanReadableCharacter, humanReadableCharacterFont, Brushes.Black, humanReadableRectangle, humanReadableFormat);
                 }
 
                 xPosition += symbolWidth * linearEncoder.XDimension;
             }
 
-            labelValueFont.Dispose();
-            labelValueGraphics.Dispose();
+            // Add any human readable suffix
+            if (linearEncoder.LinearEncoding.HumanReadableSuffix != null)
+            {
+                humanReadableRectangle = new RectangleF(xPosition, yPosition, suffixWidth, humanReadableElement.Image.Height);
+                humanReadableGraphics.FillRectangle(Brushes.White, humanReadableRectangle);
+                humanReadableGraphics.DrawString(linearEncoder.LinearEncoding.HumanReadableSuffix, humanReadableFont, Brushes.Black, humanReadableRectangle, humanReadableFormat);
+            }
 
-            return labelValueElement;
+            humanReadableFont.Dispose();
+            humanReadableGraphics.Dispose();
+            humanReadableElement.Position.XPosition = quietzone - prefixWidth;
+
+            return humanReadableElement;
         }
-        
+
         /// <summary>
         /// Creates the barcode image element.
         /// </summary>
         /// <param name="linearEncoder"></param>
+        /// <param name="quietzone"></param>
         /// <returns>The generated barcode image inside an ImageElement object.</returns>
-        internal static ImageElement GetBarcodeImage(LinearEncoder linearEncoder)
+        internal static ImageElement GetBarcodeImage(LinearEncoder linearEncoder, int quietzone)
         {
 
             // Set the encoding image width from the minimum width multiplied by the x-dimension
@@ -326,6 +379,7 @@ namespace Barcoded
                 }
             }
 
+            barcodeElement.Position.XPosition = quietzone;
             return barcodeElement;
         }
 
@@ -333,8 +387,9 @@ namespace Barcoded
         /// Creates the encoding text image element.
         /// </summary>
         /// <param name="linearEncoder"></param>
+        /// <param name="quietzone"></param>
         /// <returns>The generated encoding text image inside an ImageElement object.</returns>
-        internal static ImageElement GetEncodingImage(LinearEncoder linearEncoder)
+        internal static ImageElement GetEncodingImage(LinearEncoder linearEncoder, int quietzone)
         {
             // Create an empty ImageElement
             ImageElement encodingTextElement = new ImageElement();
@@ -395,6 +450,7 @@ namespace Barcoded
             encodeCharFont.Dispose();
             encodingTextGraphics.Dispose();
             encodePen.Dispose();
+            encodingTextElement.Position.XPosition = quietzone;
 
             return encodingTextElement;
         }

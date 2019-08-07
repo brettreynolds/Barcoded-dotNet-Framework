@@ -5,13 +5,22 @@
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl type="expression">GPL-3.0-only</licenseUrl>
+    <owners>BrettReynolds</owners>
+    <license type="expression">GPL-3.0-only</license>
     <projectUrl>https://github.com/brettreynolds/Barcoded-dotNet-Framework</projectUrl>
+    <iconUrl>https://barcoded.online/Assets/Barcode%20Icon%201.svg</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>First release.</releaseNotes>
+    <releaseNotes>First release - Added Framework Assembly.</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Barcode .NET Code128 Code39 Barcoded</tags>
+    <frameworkAssemblies>
+        <frameworkAssembly assemblyName="System.Collections.Generic" targetFramework="net40" />
+        <frameworkAssembly assemblyName="System.Linq" targetFramework="net40" />
+        <frameworkAssembly assemblyName="System.Text.RegularExpressions" targetFramework="net40" />
+        <frameworkAssembly assemblyName="System.Drawing" targetFramework="net40" />
+        <frameworkAssembly assemblyName="System.Drawing.Imaging" targetFramework="net40" />
+        <frameworkAssembly assemblyName="System.IO" targetFramework="net40" />
+    </frameworkAssemblies>
   </metadata>
 </package>

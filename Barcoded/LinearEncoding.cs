@@ -5,9 +5,11 @@ namespace Barcoded
 {
     internal class LinearEncoding
     {
-
-        //public Dictionary<int, int> Symbols { get; set; } = new Dictionary<int, int>();
         public Dictionary<int, LinearSymbol> Symbols { get; } = new Dictionary<int, LinearSymbol>();
+        
+        public string HumanReadablePrefix { get; internal set; }
+
+        public string HumanReadableSuffix { get; internal set; }
 
         public int MinimumWidth { get; private set; }
 

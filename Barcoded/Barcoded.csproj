@@ -49,9 +49,13 @@
     <Compile Include="Code128Validator.cs" />
     <Compile Include="Code39Encoder.cs" />
     <Compile Include="Code39Validator.cs" />
+    <Compile Include="Ean138Encoder.cs" />
+    <Compile Include="Ean138Validator.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="ILinearValidator.cs" />
     <Compile Include="ImageHelpers.cs" />
+    <Compile Include="Interleaved2of5Encoder.cs" />
+    <Compile Include="Interleaved2of5Validator.cs" />
     <Compile Include="LinearBarcode.cs" />
     <Compile Include="LinearEncoder.cs" />
     <Compile Include="LinearEncoding.cs" />

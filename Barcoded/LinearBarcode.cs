@@ -117,6 +117,9 @@ namespace Barcoded
                 case Symbology.Code128BA:
                     Encoder = new Code128Encoder(symbology);
                     break;
+                case Symbology.GS1128:
+                    Encoder = new Code128Encoder(symbology);
+                    break;
                 case Symbology.Code39:
                     Encoder = new Code39Encoder(symbology);
                     break;
@@ -128,6 +131,21 @@ namespace Barcoded
                     break;
                 case Symbology.Code39FullC:
                     Encoder = new Code39Encoder(symbology);
+                    break;
+                case Symbology.I2of5:
+                    Encoder = new Interleaved2Of5Encoder(symbology);
+                    break;
+                case Symbology.I2of5C:
+                    Encoder = new Interleaved2Of5Encoder(symbology);
+                    break;
+                case Symbology.Ean13:
+                    Encoder = new Ean138Encoder(symbology);
+                    break;
+                case Symbology.UpcA:
+                    Encoder = new Ean138Encoder(symbology);
+                    break;
+                case Symbology.Ean8:
+                    Encoder = new Ean138Encoder(symbology);
                     break;
                 default:
                     Encoder = new Code128Encoder(Symbology.Code128BAC);
@@ -180,6 +198,8 @@ namespace Barcoded
                     return Symbology.Code128AB;
                 case "CODE128BA":
                     return Symbology.Code128BA;
+                case "GS1128":
+                    return Symbology.GS1128;
                 case "CODE39":
                     return Symbology.Code39;
                 case "CODE39C":
@@ -188,6 +208,16 @@ namespace Barcoded
                     return Symbology.Code39Full;
                 case "CODE39FULLC":
                     return Symbology.Code39FullC;
+                case "I2OF5":
+                    return Symbology.I2of5;
+                case "I2OF5C":
+                    return Symbology.I2of5C;
+                case "EAN13":
+                    return Symbology.Ean13;
+                case "UPCA":
+                    return Symbology.UpcA;
+                case "EAN8":
+                    return Symbology.Ean8;
                 default:
                     return Symbology.Code128BAC;
             }

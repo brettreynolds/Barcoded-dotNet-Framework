@@ -50,6 +50,11 @@ namespace Barcoded
         }
 
         /// <summary>
+        /// Internal Barcode Value that can be reached by the renderer.
+        /// </summary>
+        public string EncodedValue { get; internal set; }
+
+        /// <summary>
         /// Barcode symbology.
         /// </summary>
         public Symbology Symbology { get; set; }
@@ -201,6 +206,21 @@ namespace Barcoded
             set
             {
                 _xDimension = value;
+                PropertyChanged = true;
+            }
+        }
+
+        private int _wideBarRatio = 3;
+        /// <summary>
+        /// X-dimension is the width of the narrowest bar element in the barcode.
+        /// All other bar and spaces widths in the barcode are a multiple of this value.
+        /// </summary>
+        public int WideBarRatio
+        {
+            get => _wideBarRatio;
+            set
+            {
+                _wideBarRatio = value > 2? 3 : 2;
                 PropertyChanged = true;
             }
         }
