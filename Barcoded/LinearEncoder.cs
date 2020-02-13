@@ -144,6 +144,16 @@ namespace Barcoded
         }
 
         /// <summary>
+        /// Sets the visibility and position of the human readable value.
+        /// Hidden, Above, Below, Embedded
+        /// </summary>
+        public void SetHumanReadablePosition(HumanReadablePosition position)
+        {
+            HumanReadablePosition = position;
+            PropertyChanged = true;
+        }
+
+        /// <summary>
         /// The font to be used for the human readable value, if shown.
         /// Will default to the system default font if not set.
         /// </summary>
