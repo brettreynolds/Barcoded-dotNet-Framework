@@ -48,10 +48,8 @@ namespace Barcoded
 
         internal override ILinearValidator BarcodeValidator { get; } = new Code39Validator();
 
-        internal override void Encode(string barcodeValue)
+        protected override void Encode(string barcodeValue)
         {
-            EncodedValue = barcodeValue;
-
             switch(Symbology)
             {
                 case Symbology.Code39Full:
@@ -88,6 +86,7 @@ namespace Barcoded
                     char asciiChar = (char)fullAsciiCode;
                     LinearEncoding.Add(asciiChar.ToString(), 0, _patternDictionary[fullAsciiCode]);
                     LinearEncoding.Add(" ", 1, _patternDictionary[1]);
+                    ZplEncode += asciiChar.ToString();
                     checkDigitRunning += _checkDigitDictionary[fullAsciiCode];
                 }
 

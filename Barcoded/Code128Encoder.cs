@@ -56,9 +56,8 @@ namespace Barcoded
 
         internal override ILinearValidator BarcodeValidator { get; } = new Code128Validator();
 
-        internal override void Encode(string barcodeValue)
+        protected override void Encode(string barcodeValue)
         {
-            EncodedValue = barcodeValue;
             ZplEncode = "";
             LoadCode128Symbology();
             LoadSymbologyPattern();

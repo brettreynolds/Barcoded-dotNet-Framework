@@ -37,9 +37,8 @@ namespace Barcoded
 
         internal override ILinearValidator BarcodeValidator { get; } = new Interleaved2Of5Validator();
 
-        internal override void Encode(string barcodeValue)
+        protected override void Encode(string barcodeValue)
         {
-            ZplEncode = "";
             LoadSymbologyPattern();
 
             // Add check digit to barcode value.
@@ -47,8 +46,10 @@ namespace Barcoded
             {
                 int checkDigit = LinearHelpers.GetUpcCheckDigit(barcodeValue);
                 barcodeValue += checkDigit;
+                EncodedValue = barcodeValue;
             }
             EncodedValue = barcodeValue;
+            ZplEncode = EncodedValue;
 
             for (int encodePosition = 0; encodePosition <= barcodeValue.Length - 1; encodePosition += 2)
             {

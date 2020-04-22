@@ -17,7 +17,13 @@ namespace Barcoded
         /// Encode the value using the barcode symbology selected.
         /// </summary>
         /// <param name="barcodeValue"></param>
-        internal abstract void Encode(string barcodeValue);
+        protected abstract void Encode(string barcodeValue);
+
+        internal void Generate(string barcodeValue)
+        {
+            EncodedValue = BarcodeValidator.Parse(barcodeValue, Symbology);
+            Encode(EncodedValue);
+        }
 
         /// <summary>
         /// Set the minimum barcode height for the barcode symbology used.
@@ -37,9 +43,10 @@ namespace Barcoded
         internal MemoryStream GetImage(string barcodeValue)
         {
             LinearEncoding.Clear();
-            Encode(BarcodeValidator.Parse(barcodeValue, Symbology));
+            Generate(barcodeValue);
             return LinearRenderer.DrawImageMemoryStream(this);
         }
+
 
         /// <summary>
         /// Reset the Property Changed flag to false.

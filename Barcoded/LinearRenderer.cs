@@ -80,23 +80,21 @@ namespace Barcoded
             // Ensure the x-dimension selected doesn't result in a width that exceeds maximum allowable.
             linearEncoder.XDimension = Math.Min(linearEncoder.XDimension, GetXDimensionForTargetWidth(MaximumPixelWidth, linearEncoder.LinearEncoding.MinimumWidth));
 
+            // Set any necessary behavior dependent on symbology.
             switch (linearEncoder.Symbology)
             {
                 case Symbology.Ean13:
                     linearEncoder.Quietzone = true;
-                    linearEncoder.SetHumanReadablePosition("Embedded");
                     linearEncoder.HumanReadableSymbolAligned = true;
                     break;
 
                 case Symbology.UpcA:
                     linearEncoder.Quietzone = true;
-                    linearEncoder.SetHumanReadablePosition("Embedded");
                     linearEncoder.HumanReadableSymbolAligned = true;
                     break;
 
                 case Symbology.Ean8:
                     linearEncoder.Quietzone = true;
-                    linearEncoder.SetHumanReadablePosition("Embedded");
                     linearEncoder.HumanReadableSymbolAligned = true;
                     break;
             }

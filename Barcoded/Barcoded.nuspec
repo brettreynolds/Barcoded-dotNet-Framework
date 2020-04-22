@@ -10,10 +10,26 @@
     <projectUrl>https://github.com/brettreynolds/Barcoded-dotNet-Framework</projectUrl>
     <iconUrl>https://barcoded.online/Assets/Barcode%20Icon%201.svg</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
-    <releaseNotes>First release - Added Framework Assembly.</releaseNotes>
+    <description>
+    	A C#/.NET library to generate barcode images.
+    	
+    	---------------------------------------------------
+
+    	Supported Symbologies:
+		* Code128 (Subsets A,B and C)
+		* Code39 (Standard and Full ASCII)
+		* GS1-128
+		* EAN-13
+		* EAN-8
+		* UPC-A
+		* Interleaved 2 of 5
+
+		GitHub: https://github.com/brettreynolds/Barcoded-dotNet-Framework/
+		Demo: https://barcoded.online/
+    </description>
+    <releaseNotes>Added EAN-13, EAN-8, UPC-A, I2of5 and GS1-128 support.</releaseNotes>
     <copyright>Copyright 2019</copyright>
-    <tags>Barcode .NET Code128 Code39 Barcoded</tags>
+    <tags>Barcode .NET Code128 Code39 EAN-13 EAN-8 UPC-A I2of5 GS1-128 Barcoded</tags>
     <frameworkAssemblies>
         <frameworkAssembly assemblyName="System.Collections.Generic" targetFramework="net40" />
         <frameworkAssembly assemblyName="System.Linq" targetFramework="net40" />

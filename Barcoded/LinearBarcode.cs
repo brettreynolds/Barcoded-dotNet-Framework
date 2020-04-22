@@ -65,7 +65,7 @@ namespace Barcoded
         {
             get
             {
-                Encoder.Encode(BarcodeValue);
+                Encoder.Generate(BarcodeValue);
                 return Encoder.LinearEncoding.MinimumWidth;
             }
         }
@@ -74,7 +74,7 @@ namespace Barcoded
         {
             get
             {
-                Encoder.Encode(BarcodeValue);
+                Encoder.Generate(BarcodeValue);
                 return Encoder.ZplEncode;
             }
         }
@@ -89,6 +89,7 @@ namespace Barcoded
         /// </summary>
         /// <param name="barcodeValue">Barcode value string.</param>
         /// <param name="symbology">Barcode symbology string.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public LinearBarcode(string barcodeValue, string symbology) : this(barcodeValue, GetSymbology(symbology))
         {
         }
@@ -98,9 +99,10 @@ namespace Barcoded
         /// </summary>
         /// <param name="barcodeValue">Barcode value string.</param>
         /// <param name="symbology">Barcode symbology</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public LinearBarcode(string barcodeValue, Symbology symbology)
         {
-            BarcodeValue = barcodeValue;
+            BarcodeValue = barcodeValue ?? throw new ArgumentNullException(nameof(barcodeValue));
             Symbology = symbology;
 
             switch (symbology)
@@ -188,6 +190,8 @@ namespace Barcoded
         /// <returns>Symbology.</returns>
         private static Symbology GetSymbology(string symbology)
         {
+            symbology = symbology ?? "";
+
             switch (symbology.ToUpper())
             {
                 case "CODE128ABC":
@@ -228,10 +232,17 @@ namespace Barcoded
         /// </summary>
         /// <param name="codec">Codec for the image format to be saved.</param>
         /// <returns>Byte array of the barcode image.</returns>
+        /// <exception cref="NullReferenceException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public byte[] SaveImage(string codec)
         {
-            Encoder.CodecName = codec;
-            
+            Encoder.CodecName = codec ?? throw new NullReferenceException(nameof(codec));
+
+            if (string.IsNullOrWhiteSpace(BarcodeValue))
+            {
+                throw new InvalidOperationException("No BarcodeValue set");
+            }
+
             MemoryStream imageMemoryStream = Encoder.GetImage(BarcodeValue);
             _image = Image.FromStream(imageMemoryStream);
             _vectors = new LinearVectors(Encoder);
@@ -243,14 +254,13 @@ namespace Barcoded
         /// <summary>
         /// Checks if any barcode settings have changed since the last call and creates a new barcode if they have.
         /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         private void UpdateBarcode()
         {
             //Check that barcode value is not an empty string.
-            if (string.IsNullOrEmpty(BarcodeValue))
+            if (string.IsNullOrWhiteSpace(BarcodeValue))
             {
-                BarcodeValue = "EMPTY";
-                Encoder.SetHumanReadablePosition("Below");
-                Encoder.HumanReadableValue = "EMPTY";
+                throw new InvalidOperationException("No BarcodeValue set");
             }
 
             if (_barcodeValueChanged | Encoder.PropertyChanged)

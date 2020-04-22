@@ -13,6 +13,9 @@ namespace Barcoded
 
         public Ean138Encoder(Symbology symbology) : base(symbology)
         {
+            // Set the default human readable position to embedded.
+            SetHumanReadablePosition("Embedded");
+
             switch (Symbology)
             {
                 case Symbology.Ean13:
@@ -39,7 +42,7 @@ namespace Barcoded
 
         internal override ILinearValidator BarcodeValidator { get; } = new Ean138Validator();
 
-        internal override void Encode(string barcodeValue)
+        protected override void Encode(string barcodeValue)
         {
             ZplEncode = "";
             LoadSymbologyPattern();
@@ -120,6 +123,7 @@ namespace Barcoded
                 int characterType = LinearHelpers.GetCharacterType(Symbology, encodePosition, barcodeValue.Length);
                 string digitEncode = barcodeValue.Substring(encodePosition, 1) + group.Substring(encodePosition - encodeOffset, 1);
                 LinearEncoding.Add(digitEncode.Substring(0,1), characterType, _patternDictionary[digitEncode]);
+                ZplEncode += barcodeValue.Substring(encodePosition, 1);
 
                 // Add check digit and stop symbol if last encoding character.
                 if (encodePosition == endPoint - 1)
